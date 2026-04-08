@@ -12,8 +12,13 @@ std::vector<double> SerfQtDecompressor::Decompress(const Array<uint8_t> &bs) {
 }
 
 double SerfQtDecompressor::NextValue() {
-  int64_t decodeValue = ZigZagCodec::Decode(EliasGammaCodec::Decode(input_bit_stream_.get()) - 1);
-  double recoverValue = pre_value_ + 2 * max_diff_ * static_cast<double>(decodeValue);
+  // int64_t decodeValue = ZigZagCodec::Decode(EliasGammaCodec::Decode(input_bit_stream_.get()) - 1);
+  // double recoverValue = pre_value_ + 2 * max_diff_ * static_cast<double>(decodeValue);
+  // pre_value_ = recoverValue;
+  // return recoverValue;
+
+  long q = ZigZagCodec::Decode(EliasGammaCodec::Decode(input_bit_stream_.get()) - 1);
+  double recoverValue = pre_value_ + max_diff_ * static_cast<double>(q);
   pre_value_ = recoverValue;
   return recoverValue;
 }
