@@ -17,10 +17,9 @@ double SerfQtDecompressor::NextValue() {
   // pre_value_ = recoverValue;
   // return recoverValue;
 
-  // long q = ZigZagCodec::Decode(EliasGammaCodec::Decode(input_bit_stream_.get()) - 1);
-  // double recoverValue = pre_value_ + max_diff_ * static_cast<double>(q);
+  // int64_t decodeValue = ZigZagCodec::Decode(EliasGammaCodec::Decode(input_bit_stream_.get()) - 1);
   int64_t decodeValue = ZigZagCodec::Decode(EliasDeltaCodec::Decode(input_bit_stream_.get()) - 1);
-  double recoverValue = pre_value_ + 2 * max_diff_ * static_cast<double>(decodeValue);
+  double recoverValue = pre_value_ + max_diff_ * static_cast<double>(decodeValue);
   pre_value_ = recoverValue;
   return recoverValue;
 }
