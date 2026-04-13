@@ -62,8 +62,36 @@ def emulate_serf_qt_levels(values: Sequence[float], max_diff: float, initial_pre
     q_values: List[int] = []
 
     for value in values:
-        q = int(round((value - pre_value) / (2.0 * effective_eps)))
-        recover_value = pre_value + 2.0 * effective_eps * float(q)
+        # q = int(round((value - pre_value) / (2.0 * effective_eps)))
+        # recover_value = pre_value + 2.0 * effective_eps * float(q)
+
+        d_up = int(np.ceil((value - pre_value) / effective_eps))
+        d_down = int(np.floor((value - pre_value) / effective_eps))
+
+        app_up = pre_value + effective_eps * float(d_up)
+        app_down = pre_value + effective_eps * float(d_down)
+
+        # Keep the same tie behavior as C++: use down when equal.
+        if d_up == 0:
+            q = 0
+            recover_value = app_up
+        elif d_down == 0:
+            q = 0
+            recover_value = app_down
+        # 临近
+        elif abs(app_up - value) < abs(app_down - value):
+            q = d_up
+            recover_value = app_up
+        else:
+            q = d_down
+            recover_value = app_down
+        # 惯性
+        # elif value - pre_value >= 0:
+        #     q = d_up
+        #     recover_value = app_up
+        # else:
+        #     q = d_down
+        #     recover_value = app_down
 
         approx_values.append(recover_value)
         approx_bits.append(double_to_long_bits(recover_value))

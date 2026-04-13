@@ -26,15 +26,31 @@ void SerfQtCompressor::AddValue(double v) {
   double app_up = pre_value_ + kMaxDiff * static_cast<double>(d_up);
   double app_down = pre_value_ + kMaxDiff * static_cast<double>(d_down);
 
-  // 选择更接近的那个
+  // 尽量保持原线段
   long q;
-  if(std::abs(app_up - v) < std::abs(app_down - v)) {
+  if (d_up == 0) {
+    q = 0;
+    pre_value_ = app_up;
+  } else if (d_down == 0) {
+    q = 0;
+    pre_value_ = app_down;
+  } 
+  // 新建线段时选择更接近的那个
+  else if(std::abs(app_up - v) < std::abs(app_down - v)) {
     q = d_up;
     pre_value_ = app_up;
   } else {
     q = d_down;
     pre_value_ = app_down;
   }
+  // // 新建线段时选择更符合惯性的那个
+  // else if (v - pre_value_ >= 0) {
+  //   q = d_up;
+  //   pre_value_ = app_up;
+  // } else {
+  //   q = d_down;
+  //   pre_value_ = app_down;
+  // }
 
   compressed_size_in_bits_ += EliasGammaCodec::Encode(ZigZagCodec::Encode(static_cast<int64_t>(q)) + 1,
                                                       output_bit_stream_.get());
